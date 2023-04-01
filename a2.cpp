@@ -62,15 +62,6 @@ int main()
 
 	}
 
-	
-//	SPRITE
-
-	Texture texture;
-
-	
-
-
-
 	for(int i =0; i< result; i++){
 
 	line[2 * (i + result)].position = Vector2f(i * verticle_end, 0.f);
@@ -80,8 +71,36 @@ int main()
 
 	}
 
+
+	
+//	SPRITE
+
+	Texture texture;
+	if(!texture.loadFromFile("charachter.png")){
+
+		cout<<"\nSprite ERROR!!!\n";
+
+	}
+	
+
+	Sprite charachter(texture);
+	charachter.setScale(Vector2f(50.f / texture.getSize().x, 40.f / texture.getSize().y));
+
+	sf::Vector2f movement(0.f, 0.f);
+
+
+	float Speedx = 50.f;
+	float Speedy = 40.f;
+
+	Clock clock;
+
+
 	while (window.isOpen())
 	{
+
+		Time deltatime = clock.restart();
+		float dt = deltatime.asSeconds();
+
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
@@ -89,9 +108,35 @@ int main()
 				window.close();
 		}
 
-			
+
+		if (Keyboard::isKeyPressed(Keyboard::Left))
+		{
+
+    	charachter.move( -Speedx * dt, 0.f);
+
+		}
+
+        if (Keyboard::isKeyPressed(Keyboard::Right))
+        {
+
+       	charachter.move( Speedx * dt, 0.f);
+        }
+
+		if (Keyboard::isKeyPressed(Keyboard::Up))
+        {
+
+       	charachter.move(0.f, -Speedy * dt);
+        }
+		if (Keyboard::isKeyPressed(Keyboard::Down))
+        {
+
+       	charachter.move(0.f, Speedy * dt);
+        }
+
+    
 		window.clear(Color::White);
 		window.draw(line);
+		window.draw(charachter);
 		window.display();
 	}
 
