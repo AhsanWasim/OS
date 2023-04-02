@@ -10,8 +10,6 @@ using namespace std;
 const int gridlines();
 bool check_collision(float, float, float, float);
 
-Sprite* create_food(int);
-
 const int gridlines(){
 
 	srand(unsigned(time(0)));
@@ -56,13 +54,6 @@ if((int)cor2y + sizey < (int)cor1y){
 return true;
 } 
 
-
-
-Sprite* create_food(int size) {
-
-		Sprite* food_arr = new Sprite[size - 5];
-		return food_arr;
-}
 
 
 
@@ -137,9 +128,6 @@ collisions set
 
 */
 
-
-
-
 	Sprite charachter(texture);
 	charachter.setScale(Vector2f(60.f / texture.getSize().x, 60.f / texture.getSize().y));
 
@@ -148,10 +136,26 @@ collisions set
 	charachter2.setScale(Vector2f(60.f / texture2.getSize().x, 60.f / texture2.getSize().y));
 	charachter2.setPosition(550.f, 550.f);
 
-
+	
 	Sprite* food_arr = new Sprite[result - 5];
 
-	food_arr = create_food(result);
+	float xfood = 40.f;
+	float yfood = 40.f; 
+
+	Texture texture3;
+	if(!texture3.loadFromFile("cake.png")){
+
+		cout<<"\nFood ERROR!!!\n";
+	}
+	
+	for(int i = 0; i < result - 5 ; i++){
+	
+		food_arr[i].setTexture(texture3);
+		food_arr[i].setScale(Vector2f(40.f / texture3.getSize().x, 40.f / texture3.getSize().y));
+		food_arr[i].setPosition(xfood, yfood);
+		xfood += 40;
+		yfood += 40;
+	}
 
 
 	float Speedx = 100.f;
@@ -272,6 +276,11 @@ collisions set
 		window.draw(line);
 		window.draw(charachter);
 		window.draw(charachter2);
+
+		for(int i = 0 ; i < result -5 ; i++){
+			window.draw(food_arr[i]);
+		}
+
 		window.display();
 	}
 
