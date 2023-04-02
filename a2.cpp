@@ -7,8 +7,19 @@
 using namespace sf;
 using namespace std;
 
+
+struct Point;
 const int gridlines();
 bool check_collision(float, float, float, float);
+Point check_food_collision1(float, float, Sprite**, int);
+
+struct Point{
+
+int x;
+int y;
+
+};
+
 
 const int gridlines(){
 
@@ -53,6 +64,29 @@ if((int)cor2y + sizey < (int)cor1y){
 
 return true;
 } 
+
+
+Point check_food_collision(float x, float y, Sprite** arr, int size){
+
+	int sizex = 20;
+	int sizey = 40;
+	Point point;
+
+	for(int i = 0; i < size ; i++){
+		for(int j =0 ; j < size ; j++){
+			if ((int)x + sizex >= (int)arr[i][j].getPosition().x && (int)arr[i][j].getPosition().x + sizex >= (int)x && (int)y + sizey >= (int)arr[i][j].getPosition().y && (int)arr[i][j].getPosition().y + sizey >= (int)y) {
+        
+			point.x = i;
+			point.y = j;
+			return point;
+			}
+		}
+	}	
+point.x = -1;
+point.y = -1;
+return point;
+}
+
 
 
 
@@ -112,22 +146,6 @@ int main()
 
 	}
 	
-
-
-
-/*
-
-make array of sprites
-create sprites
-check collision with everyone
-jidr jidr collision hui us array me bool 1 krdo
-return structure object
-in which it tells true at collision and the node at which the object collided
-move the position of that node to unknown
-collisions set
-
-*/
-
 	Sprite charachter(texture);
 	charachter.setScale(Vector2f(60.f / texture.getSize().x, 60.f / texture.getSize().y));
 
@@ -137,9 +155,15 @@ collisions set
 	charachter2.setPosition(550.f, 550.f);
 
 	
-	Sprite* food_arr = new Sprite[result - 5];
+int size = result -5;
 
-	float xfood = 40.f;
+	Sprite** food_arr = new Sprite* [size];
+
+	for(int i = 0 ; i < size ; i++){
+		food_arr[i] = new Sprite[size];
+	}
+
+	float xfood = 60.f;
 	float yfood = 40.f; 
 
 	Texture texture3;
@@ -148,21 +172,23 @@ collisions set
 		cout<<"\nFood ERROR!!!\n";
 	}
 	
-	for(int i = 0; i < result - 5 ; i++){
-	
-		food_arr[i].setTexture(texture3);
-		food_arr[i].setScale(Vector2f(40.f / texture3.getSize().x, 40.f / texture3.getSize().y));
-		food_arr[i].setPosition(xfood, yfood);
-		xfood += 40;
-		yfood += 40;
-	}
+	for(int i = 0; i < size ; i++){
+		for(int j =0 ; j < size ; j++){
 
+		food_arr[i][j].setTexture(texture3);
+		food_arr[i][j].setScale(Vector2f(40.f / texture3.getSize().x, 40.f / texture3.getSize().y));
+		food_arr[i][j].setPosition(xfood, yfood);
+		xfood += 60;
+		}
+		xfood = 60.f;
+		yfood += 50;
+	}
 
 	float Speedx = 100.f;
 	float Speedy = 100.f;
 
 	Clock clock;
-
+	Point point;
 
 	while (window.isOpen())
 	{
@@ -178,10 +204,20 @@ collisions set
 		}
 
 
+// Player 1
+
 		if (Keyboard::isKeyPressed(Keyboard::Left))
 		{
 
-		if(charachter.getPosition().x > 0 && !check_collision(charachter.getPosition().x, charachter2.getPosition().x, charachter.getPosition().y, charachter2.getPosition().y)){
+		if(check_food_collision(charachter.getPosition().x, charachter.getPosition().y, food_arr, size).x != -1){
+
+			point = check_food_collision(charachter.getPosition().x, charachter.getPosition().y, food_arr, size);
+			food_arr[point.x][point.y].setPosition(999.f, 999.f);
+		}
+
+		if(charachter.getPosition().x < 0) continue;
+
+		if(!check_collision(charachter.getPosition().x, charachter2.getPosition().x, charachter.getPosition().y, charachter2.getPosition().y)){
     	charachter.move( -Speedx * dt, 0.f);
 		}
 		else {
@@ -192,9 +228,15 @@ collisions set
 
         if (Keyboard::isKeyPressed(Keyboard::Right))
         {
-		//cout<<charachter.getPosition().x<<"  "<<charachter2.getPosition().x<<endl;
+		
+		if(check_food_collision(charachter.getPosition().x, charachter.getPosition().y, food_arr, size).x != -1){
 
-		if(charachter.getPosition().x < 700 && !check_collision(charachter.getPosition().x, charachter2.getPosition().x, charachter.getPosition().y, charachter2.getPosition().y))
+			point = check_food_collision(charachter.getPosition().x, charachter.getPosition().y, food_arr, size);
+			food_arr[point.x][point.y].setPosition(999.f, 999.f);
+		}
+		if(charachter.getPosition().x > 700) continue;
+
+		if(!check_collision(charachter.getPosition().x, charachter2.getPosition().x, charachter.getPosition().y, charachter2.getPosition().y))
 		{	
        	charachter.move( Speedx * dt, 0.f);
 		}
@@ -206,7 +248,15 @@ collisions set
 
 		if (Keyboard::isKeyPressed(Keyboard::Up))
         {
-		if(charachter.getPosition().y > 0 && !check_collision(charachter.getPosition().x, charachter2.getPosition().x, charachter.getPosition().y, charachter2.getPosition().y)){
+			if(check_food_collision(charachter.getPosition().x, charachter.getPosition().y, food_arr, size).x != -1){
+
+			point = check_food_collision(charachter.getPosition().x, charachter.getPosition().y, food_arr, size);
+			food_arr[point.x][point.y].setPosition(999.f, 999.f);
+		}
+
+		if(charachter.getPosition().y < 0) continue;
+
+		if(!check_collision(charachter.getPosition().x, charachter2.getPosition().x, charachter.getPosition().y, charachter2.getPosition().y)){
        	charachter.move(0.f, -Speedy * dt);
         }
 		else {
@@ -216,7 +266,15 @@ collisions set
 
 		if (Keyboard::isKeyPressed(Keyboard::Down))
         {
-		if(charachter.getPosition().y < 550 && !check_collision(charachter.getPosition().x, charachter2.getPosition().x, charachter.getPosition().y, charachter2.getPosition().y)){
+		if(check_food_collision(charachter.getPosition().x, charachter.getPosition().y, food_arr, size).x != -1){
+
+			point = check_food_collision(charachter.getPosition().x, charachter.getPosition().y, food_arr, size);
+			food_arr[point.x][point.y].setPosition(999.f, 999.f);
+		}
+
+		if(charachter.getPosition().y > 550) continue;
+
+		if(!check_collision(charachter.getPosition().x, charachter2.getPosition().x, charachter.getPosition().y, charachter2.getPosition().y)){
        	charachter.move(0.f, Speedy * dt);
 		}
 		else {
@@ -224,13 +282,20 @@ collisions set
 		}
 		}
 
-
 // Player 2
-
 
 		if (Keyboard::isKeyPressed(Keyboard::A))
 		{
-		if(charachter2.getPosition().x > 0 && !check_collision(charachter.getPosition().x, charachter2.getPosition().x, charachter.getPosition().y, charachter2.getPosition().y)){
+		if (check_food_collision(charachter2.getPosition().x, charachter2.getPosition().y, food_arr, size).x != -1) {
+
+    	point = check_food_collision(charachter2.getPosition().x, charachter2.getPosition().y, food_arr, size);
+    	food_arr[point.x][point.y].setPosition(999.f, 999.f);
+
+		}
+
+		if(charachter2.getPosition().x < 0) continue;
+
+		if(!check_collision(charachter.getPosition().x, charachter2.getPosition().x, charachter.getPosition().y, charachter2.getPosition().y)){
 		charachter2.move( -Speedx * dt, 0.f);
 		}
 		else {
@@ -240,7 +305,17 @@ collisions set
 
 		if (Keyboard::isKeyPressed(Keyboard::D))
 		{
-		if(charachter2.getPosition().x < 700 && !check_collision(charachter.getPosition().x, charachter2.getPosition().x, charachter.getPosition().y, charachter2.getPosition().y)){
+
+		if (check_food_collision(charachter2.getPosition().x, charachter2.getPosition().y, food_arr, size).x != -1) {
+
+    	point = check_food_collision(charachter2.getPosition().x, charachter2.getPosition().y, food_arr, size);
+    	food_arr[point.x][point.y].setPosition(999.f, 999.f);
+		
+		}
+
+		if(charachter2.getPosition().x > 700) continue;
+
+		if(!check_collision(charachter.getPosition().x, charachter2.getPosition().x, charachter.getPosition().y, charachter2.getPosition().y)){
 		charachter2.move( Speedx * dt, 0.f);
 		}
 		else {
@@ -250,7 +325,17 @@ collisions set
 
 		if (Keyboard::isKeyPressed(Keyboard::W))
 		{
-		if(charachter2.getPosition().y > 0 && !check_collision(charachter.getPosition().x, charachter2.getPosition().x, charachter.getPosition().y, charachter2.getPosition().y)){
+
+		if (check_food_collision(charachter2.getPosition().x, charachter2.getPosition().y, food_arr, size).x != -1) {
+
+    	point = check_food_collision(charachter2.getPosition().x, charachter2.getPosition().y, food_arr, size);
+    	food_arr[point.x][point.y].setPosition(999.f, 999.f);
+		
+		}
+
+		if(charachter2.getPosition().y < 0) continue;
+
+		if(!check_collision(charachter.getPosition().x, charachter2.getPosition().x, charachter.getPosition().y, charachter2.getPosition().y)){
 		charachter2.move(0.f, -Speedy * dt);
 		}
 		else {
@@ -260,7 +345,16 @@ collisions set
 
 		if (Keyboard::isKeyPressed(Keyboard::S))
 		{
-		if(charachter2.getPosition().y < 550 && !check_collision(charachter.getPosition().x, charachter2.getPosition().x, charachter.getPosition().y, charachter2.getPosition().y)){
+		if (check_food_collision(charachter2.getPosition().x, charachter2.getPosition().y, food_arr, size).x != -1) {
+
+    	point = check_food_collision(charachter2.getPosition().x, charachter2.getPosition().y, food_arr, size);
+    	food_arr[point.x][point.y].setPosition(999.f, 999.f);
+		
+		}
+
+		if(charachter2.getPosition().y > 550) continue;
+
+		if(!check_collision(charachter.getPosition().x, charachter2.getPosition().x, charachter.getPosition().y, charachter2.getPosition().y)){
 		charachter2.move(0.f, Speedy * dt);
 		}
 		else {
@@ -268,20 +362,16 @@ collisions set
 		}
 		}
 
-
-
- //   cout<<charachter.getPosition().x <<endl<<charachter.getPosition().y<<endl;
-
-		window.clear(Color::White);
+		window.clear(Color::Cyan);
 		window.draw(line);
 		window.draw(charachter);
 		window.draw(charachter2);
 
-		for(int i = 0 ; i < result -5 ; i++){
-			window.draw(food_arr[i]);
+		for(int i = 0 ; i < size ; i++){
+			for(int j = 0 ; j< size ; j++){
+			window.draw(food_arr[i][j]);
+			}
 		}
-
 		window.display();
 	}
-
 }
